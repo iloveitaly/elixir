@@ -771,6 +771,20 @@ defmodule Logger do
     end
   end
 
+  def exception(kind, reason, stacktrace) do
+    reason = Exception.normalize(kind, reason, stacktrace)
+
+    crash_reason = case kind do
+      :throw -> {{:nocatch, reason}, stack}
+      _ -> {reason, stack}
+    end
+
+    Logger.error(
+      Exception.format(kind, reason, stacktrace),
+      crash_reason: crash_reason
+    )
+  end
+
   @doc false
   def __should_log__(level, module) do
     level = Logger.Handler.elixir_level_to_erlang_level(level)
